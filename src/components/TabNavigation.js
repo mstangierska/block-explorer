@@ -1,6 +1,9 @@
 import React from 'react';
 import { Tabs, Tab } from '@mui/material';
 import { NavLink, useLocation } from 'react-router-dom';
+import {Button, Box, AppBar, Toolbar, Typography, Container} from '@mui/material';
+
+import SearchComponent from './SearchComponent.js';
 
 export default function TabNavigation() {
   const location = useLocation();
@@ -16,6 +19,8 @@ export default function TabNavigation() {
   const currentTabIndex = pathToIndex[location.pathname] || 0; // Default to 0 if path doesn't match
 
   return (
+    <AppBar position="sticky" color="white" sx={{ backgroundColor: 'white' }} >
+    <Toolbar color="white">
     <Tabs value={currentTabIndex} aria-label="navigation tabs">
       <NavLink to="/" exact activeClassName="active-link">
         <Tab label="Home" value="/" />
@@ -27,5 +32,8 @@ export default function TabNavigation() {
         <Tab label="Block explorer" value="/blockexplorer" />
       </NavLink>
     </Tabs>
+    <SearchComponent />
+    </Toolbar>
+    </AppBar>
   );
 }

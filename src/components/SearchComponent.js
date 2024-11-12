@@ -6,7 +6,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import NativeSelect from '@mui/material/NativeSelect';
 import InputBase from '@mui/material/InputBase';
-import {Button, Box} from '@mui/material';
+import {Button, Box, AppBar, Toolbar, Typography, Container} from '@mui/material';
 import { useHistory } from 'react-router-dom';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
@@ -19,21 +19,11 @@ const BootstrapInput = styled(InputBase)(({ theme }) => ({
     backgroundColor: theme.palette.background.paper,
     border: '1px solid #ced4da',
     fontSize: 14,
-    padding: '10px 20px 10px 20px',
+    width: '200px',
+    padding: '10px 50px 10px 20px',
     transition: theme.transitions.create(['border-color', 'box-shadow']),
     // Use the system font instead of the default Roboto font.
-    fontFamily: [
-      '-apple-system',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
-      'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
-      '"Apple Color Emoji"',
-      '"Segoe UI Emoji"',
-      '"Segoe UI Symbol"',
-    ].join(','),
+
     '&:focus': {
       borderRadius: 4,
       borderColor: '#80bdff',
@@ -42,7 +32,7 @@ const BootstrapInput = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function CustomizedSelects() {
+export default function SearchComponent() {
   const [query, setQuery] = React.useState('');
   const history = useHistory()
   
@@ -53,7 +43,6 @@ export default function CustomizedSelects() {
 
   return (
     <div>
-    <Box>
       <FormControl sx={{ m: 1 }} variant="standard">
         <InputLabel htmlFor="demo-customized-textbox">Search</InputLabel>
         <BootstrapInput
@@ -66,12 +55,10 @@ export default function CustomizedSelects() {
         <Button 
         variant="contained" 
         color="primary" 
-        sx={{ m: 4 }}
-        onClick={handleSearch}
-      >
-        Submit
+        sx={{ m: 4, borderRadius: 3 }}
+        onClick={handleSearch}>
+          Submit
       </Button>
-    </Box>
-    </div>
+  </div>
   );
 }

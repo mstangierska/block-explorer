@@ -17,7 +17,7 @@ export default function NewPage() {
         height: '50vh',              // Take full height of the viewport
         textAlign: 'center',         // Optional: centers text inside paragraphs
       }}>
-    <h1>Lookup 🕵🏻‍♀️ 🔎</h1>
+    <h1>Look up 🕵🏻‍♀️ 🔎</h1>
     <SearchComponent/>
     <p>Latest block: #{blockNumber !== null ? blockNumber : 'Loading...'} </p>
     <p>Mined: {timeAgo} ({minedDate})</p>

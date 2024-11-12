@@ -1,9 +1,3 @@
-<<<<<<< Updated upstream
-import React from 'react';
-
-export default function TransactionsPage() {
-  return <h1>Transactions Page</h1>;
-=======
 import React, { useState, useEffect } from 'react';
 import { useBlockNumber } from '../BlockContext';
 import { Alchemy } from 'alchemy-sdk';
@@ -73,5 +67,4 @@ export default function TransactionsPage() {
       </Card>
     </Box>
   );
->>>>>>> Stashed changes
 }

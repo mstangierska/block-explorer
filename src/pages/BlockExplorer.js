@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useBlockNumber } from '../BlockContext';
-import { Alchemy } from 'alchemy-sdk';
+import { Alchemy, Utils } from 'alchemy-sdk';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination } from '@mui/material';
-import { Utils } from 'alchemy-sdk';
 import { Card, CardContent, Typography, CircularProgress, Box } from '@mui/material';
 
+import { useHistory } from 'react-router-dom'
 
 export default function BlockExplorer() {
 
-  const {blockNumber} = useBlockNumber();
+  const alchemy = new Alchemy({
+    apiKey: process.env.REACT_APP_ALCHEMY_API_KEY,
+    network: 'eth-mainnet',
+  });
+
+  const {blockNumber, setBlockNumber, arg1, arg2 } = useBlockNumber();
   const [blockData, setBlockData] = useState(null);
-  
+  const history = useHistory()
+
   useEffect(() => {
     async function getBlockData() {
       const data = await alchemy.core.getBlockWithTransactions(blockNumber);
@@ -23,6 +29,21 @@ export default function BlockExplorer() {
   if (!blockData) {
     return <p>Loading block data...</p>;
   }
+
+  const handleRowClick = async () => {
+    // Fetch the parent block data using the parentHash
+    const parentBlockData = await alchemy.core.getBlock(blockData.parentHash);
+    
+    // Set the block number to the parent block’s number
+    if (parentBlockData) {
+      setBlockNumber(parentBlockData.number);
+    }
+  };
+
+
+  const handleShowTransactions = () => {
+    history.push('/transactions', { blockNumber });
+  };
 
   const formattedTimestamp = new Date(blockData.timestamp * 1000).toLocaleString();
 
@@ -41,12 +62,15 @@ export default function BlockExplorer() {
 
             <TableRow>
               <TableCell>Timestamp:</TableCell>
-              <TableCell>{formattedTimestamp}</TableCell>
+              <TableCell>🕓 {formattedTimestamp}</TableCell>
             </TableRow> 
 
-            <TableRow>
+            <TableRow
+             onClick={handleShowTransactions} 
+             style={{ cursor: 'pointer' }}
+             >
               <TableCell>Transactions:</TableCell>
-              <TableCell>{blockData.transactions.length}</TableCell>
+              <TableCell style={{ color: '#33c9ff' }}>{blockData.transactions.length} transactions</TableCell>
             </TableRow>
 
             <TableRow>
@@ -54,9 +78,12 @@ export default function BlockExplorer() {
               <TableCell>{blockData.miner}</TableCell>
             </TableRow>
 
-            <TableRow>
+            <TableRow
+              key={blockData.id} 
+              onClick={handleRowClick} 
+              style={{ cursor: 'pointer' }}>
               <TableCell>Parent Hash:</TableCell>
-              <TableCell>{blockData.parentHash}</TableCell>
+              <TableCell style={{ color: '#33c9ff' }}>{blockData.parentHash}</TableCell>
             </TableRow>
 
             <TableRow>
