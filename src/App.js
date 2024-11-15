@@ -1,19 +1,21 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import TabNavigation from './components/TabNavigation';
-import HomePage from './pages/HomePage';
-import BlocksPage from './pages/BlocksPage';
 import TransactionsPage from './pages/TransactionsPage';
-import NewPage from './pages/NewPage.js';
+import HomePage from './pages/HomePage.js';
 import BlockExplorer from './pages/BlockExplorer.js';
+import AddressPage from './pages/AddressPage.js';
+
 function App() {
   return (
     <BrowserRouter>
       <TabNavigation />
-        <Route path="/" component={HomePage} />
-        <Route path="/lookup" component={NewPage} />
+      <Switch>
+        <Route exact path="/" component={HomePage} />
         <Route path="/transactions" component={TransactionsPage} />
         <Route path="/blockexplorer" component={BlockExplorer} />
+        <Route path="/address" component={AddressPage} />
+      </Switch>
     </BrowserRouter>
   );
 }

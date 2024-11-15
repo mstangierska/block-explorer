@@ -1,0 +1,30 @@
+.clickableCell {
+  cursor: pointer;
+  color: #1976d2;
+  transition: color 0.2s;
+}
+
+.clickableCell:hover {
+  color: #2196f3 !important;
+} 
+
+.hashCell {
+    transition: opacity 0.2s ease !important;
+  }
+  
+  .hashCell:hover {
+    opacity: 0.8 !important;
+  }
+  
+  /* Tooltip styles */
+  .customTooltip {
+    background-color: #2b2b2b !important;
+    color: rgb(255, 255, 255) !important;
+    font-size: 15px !important;
+    border: 1px solid #dadde9 !important;
+    max-width: none !important;
+    padding: 8px 12px !important;
+    border-radius: 15px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    font-family: monospace !important;
+  }

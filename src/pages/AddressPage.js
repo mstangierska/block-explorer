@@ -2,49 +2,60 @@ import React, { useState, useEffect } from 'react';
 import { Alchemy } from 'alchemy-sdk';
 import { Card, CardContent, Typography, CircularProgress, Box, TablePagination } from '@mui/material';
 import BlockTable from '../components/BlockTable.js';
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom';
 import styles from '../styles/pages.module.css';
+import { useBlockNumber } from '../BlockContext';
 
 const alchemy = new Alchemy({
   apiKey: process.env.REACT_APP_ALCHEMY_API_KEY,
   network: 'eth-mainnet',
 });
 
-export default function TransactionsPage() {
-
+export default function AddressPage() {
+  const { defaultAddress } = useBlockNumber();
   const location = useLocation();
-  const { blockNumber } = location.state || {}
+  const [address, setAddress] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
-    if (blockNumber) {
-      async function fetchTransactions() {
+    // Use search address if available, otherwise use default address
+    const searchAddress = location.state?.address;
+    setAddress(searchAddress || defaultAddress);
+  }, [location.state]);
+
+  useEffect(() => {
+    if (address) {
+      async function fetchAddressTransactions() {
         setLoading(true);
         try {
-        const blockData = await alchemy.core.getBlockWithTransactions(blockNumber);
-        setTransactions(blockData.transactions);
+          // Get the last 1000 transactions for this address
+          const response = await alchemy.core.getAssetTransfers({
+            fromAddress: address,
+            category: ["external", "internal", "erc20", "erc721", "erc1155"],
+            maxCount: 1000
+          });
+          setTransactions(response.transfers);
         } catch (error) {
-          console.error('Error fetching transactions:', error);
+          console.error('Error fetching address transactions:', error);
         } finally {
           setLoading(false);
-        } 
+        }
       }
-      fetchTransactions();
+      fetchAddressTransactions();
     }
-  }, [blockNumber]);
+  }, [address]);
 
-  if (loading || !blockNumber) {
+  if (loading || !address) {
     return (
       <Box className={styles.transactionsPage}>
         <Card className={styles.transactionsCard}>
           <CardContent>
             <div className={styles.transactionsHeader}>
               <Typography className={styles.statsValue}>
-                Loading Transactions...
+                Loading Address Transactions...
               </Typography>
             </div>
             <CircularProgress />
@@ -53,23 +64,6 @@ export default function TransactionsPage() {
       </Box>
     );
   }
-
-    // Check for no transactions after loading
-    if (!loading && transactions.length === 0) {
-      return (
-        <Box className={styles.transactionsPage}>
-          <Card className={styles.transactionsCard}>
-            <CardContent>
-              <div className={styles.transactionsHeader}>
-                <Typography className={styles.statsValue}>
-                  No transactions found for block #{blockNumber}
-                </Typography>
-              </div>
-            </CardContent>
-          </Card>
-        </Box>
-      );
-    }
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -84,40 +78,22 @@ export default function TransactionsPage() {
   const endIndex = startIndex + rowsPerPage;
   const displayedTransactions = transactions.slice(startIndex, endIndex);
 
-  if (!transactions) {
-    return (
-      <Box className={styles.transactionsPage}>
-        <Card className={styles.transactionsCard}>
-          <CardContent>
-            <div className={styles.transactionsHeader}>
-              <Typography className={styles.statsValue}>
-                Loading Transactions...
-              </Typography>
-            </div>
-            <CircularProgress />
-          </CardContent>
-        </Card>
-      </Box>
-    );
-  }
-
-
   return (
     <Box className={styles.transactionsPage}>
       <Card className={styles.transactionsCard}>
         <CardContent>
-        <div className={styles.transactionsHeader}>
+          <div className={styles.transactionsHeader}>
             <div className={styles.transactionStats}>
               <Typography className={styles.statsLabel}>
-                Block Transactions
+                Address Transactions
               </Typography>
               <Typography className={styles.statsValue}>
-                #{blockNumber.toLocaleString()}
+                {address}
               </Typography>
             </div>
             <div className={styles.transactionStats}>
               <Typography className={styles.statsLabel}>
-                Total Transactions
+                Fetched Transactions
               </Typography>
               <Typography className={styles.statsValue}>
                 {transactions.length.toLocaleString()}
@@ -126,11 +102,7 @@ export default function TransactionsPage() {
           </div>
 
           <div className={styles.tableContainer}>
-          <BlockTable
-            transactions={displayedTransactions}
-            page={page}
-            rowsPerPage={rowsPerPage}
-          />
+            <BlockTable transactions={displayedTransactions} />
           </div>
 
           <div className={styles.paginationContainer}>

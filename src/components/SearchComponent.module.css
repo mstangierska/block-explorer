@@ -1,0 +1,61 @@
+.searchContainer {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.searchContainerBig {
+    width: 100% !important;
+    max-width: 800px !important;
+    margin: 0 auto !important;
+}
+
+.formControl {
+    width: 200px !important;
+    margin: 0 !important;
+}
+
+.formControlBig {
+    width: 100% !important;
+}
+
+.inputWrapper {
+    margin-top: 8px !important;
+    width: 200px !important;
+}
+
+.inputWrapperBig {
+    width: 100% !important;
+}
+
+.inputWrapper :global(.MuiInputBase-input) {
+    border-radius: 20px !important;
+    background-color: #f5f5f5 !important;
+    border: 1px solid #e0e0e0 !important;
+    font-size: 14px !important;
+    padding: 8px 16px !important;
+    transition: all 0.2s ease-in-out !important;
+    width: 100% !important;
+}
+
+.inputWrapper :global(.MuiInputBase-input:focus) {
+    background-color: white !important;
+    border-color: #1976d2 !important;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1) !important;
+}
+
+.inputWrapperBig :global(.MuiInputBase-input) {
+    font-size: 16px !important;
+}
+
+.submitButton {
+    min-width: 0 !important;
+    padding: 6px 16px !important;
+    margin-top: 8px !important;
+    height: 36px !important;
+    border-radius: 18px !important;
+    text-transform: none !important;
+    font-size: 14px !important;
+    white-space: nowrap !important;
+    box-shadow: none !important;
+}

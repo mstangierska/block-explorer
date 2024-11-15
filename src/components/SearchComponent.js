@@ -1,62 +1,66 @@
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
 import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import NativeSelect from '@mui/material/NativeSelect';
 import InputBase from '@mui/material/InputBase';
-import {Button, Box, AppBar, Toolbar, Typography, Container} from '@mui/material';
+import {Button} from '@mui/material';
 import { useHistory } from 'react-router-dom';
+import styles from './SearchComponent.module.css';
 
-const BootstrapInput = styled(InputBase)(({ theme }) => ({
-  'label + &': {
-    marginTop: theme.spacing(3),
-  },
-  '& .MuiInputBase-input': {
-    borderRadius: 4,
-    position: 'relative',
-    backgroundColor: theme.palette.background.paper,
-    border: '1px solid #ced4da',
-    fontSize: 14,
-    width: '200px',
-    padding: '10px 50px 10px 20px',
-    transition: theme.transitions.create(['border-color', 'box-shadow']),
-    // Use the system font instead of the default Roboto font.
-
-    '&:focus': {
-      borderRadius: 4,
-      borderColor: '#80bdff',
-      boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
-    },
-  },
-}));
-
-export default function SearchComponent() {
+export default function SearchComponent({ size = 'default'}) {
   const [query, setQuery] = React.useState('');
   const history = useHistory()
   
   const handleSearch = (event) => {
-    setQuery(event.target.value);
-    history.push('/blockexplorer', {blockNumber: query})
+    if (!query.trim()) return;
+
+    if (/^0x[a-fA-F0-9]{64}$/.test(query)) {
+      // This is a transaction hash
+      history.push('/transaction', { txHash: query });
+    } else if (/^0x[a-fA-F0-9]{40}$/.test(query)) {
+      // This is an address
+      history.push('/address', { address: query });
+      setQuery('');
+    } else if (/^\d+$/.test(query)) {
+      // This is a block number
+      history.push('/blockexplorer', { blockNumber: parseInt(query) });
+      setQuery('');
+    } else if (/^0x[a-fA-F0-9]{64}$/.test(query)) {
+      // This is a block hash
+      history.push('/blockexplorer', { blockHash: query });
+      setQuery('');
+    } else {
+      // Invalid input
+      alert('Invalid search input. Please enter a valid transaction hash, address, block number, or block hash.');
+    }
   };
+    
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
+  };
+  const containerClassName = `${styles.searchContainer} ${size === 'big' ? styles.searchContainerBig : ''}`;
+  const formControlClassName = `${styles.formControl} ${size === 'big' ? styles.formControlBig : ''}`;
+  const inputClassName = `${styles.inputWrapper} ${size === 'big' ? styles.inputWrapperBig : ''}`;
 
   return (
-    <div>
-      <FormControl sx={{ m: 1 }} variant="standard">
-        <InputLabel htmlFor="demo-customized-textbox">Search</InputLabel>
-        <BootstrapInput
-          id="demo-customized-textbox"
+    <div className={containerClassName}>
+      <FormControl className={formControlClassName} variant="standard">
+        <InputLabel htmlFor="demo-customized-textbox"></InputLabel>
+        <InputBase
+          id="search-input"
+          className={inputClassName}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by..."
+          placeholder="Search by address, block number, or transaction hash"
         />
         </FormControl>
         <Button 
         variant="contained" 
         color="primary" 
-        sx={{ m: 4, borderRadius: 3 }}
-        onClick={handleSearch}>
+        className={styles.submitButton}
+        onClick={handleSearch}
+        size={size === 'big' ? 'medium' : 'small'}>
           Submit
       </Button>
   </div>

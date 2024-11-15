@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useBlockNumber } from '../BlockContext';
 import { Alchemy, Utils } from 'alchemy-sdk';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination } from '@mui/material';
-import { Card, CardContent, Typography, CircularProgress, Box } from '@mui/material';
-
+import { Table, TableBody, TableCell, TableContainer, TableRow, Card, CardContent, Typography, CircularProgress, Box } from '@mui/material';
+import styles from '../styles/pages.module.css';
 import { useHistory } from 'react-router-dom'
 
 export default function BlockExplorer() {
@@ -26,51 +25,86 @@ export default function BlockExplorer() {
     getBlockData();
     }, [blockNumber]);
 
+  
+    const handleRowClick = async () => {
+      // Fetch the parent block data using the parentHash
+      const parentBlockData = await alchemy.core.getBlock(blockData.parentHash);
+      
+      // Set the block number to the parent block’s number
+      if (parentBlockData) {
+        setBlockNumber(parentBlockData.number);
+      }
+    };
+  
+  
+    const handleShowTransactions = () => {
+      history.push('/transactions', { blockNumber });
+    };  
+
   if (!blockData) {
-    return <p>Loading block data...</p>;
+    return (
+      <Box className={styles.explorerPage}>
+        <Card className={styles.blockCard}>
+          <CardContent>
+            <div className={styles.blockHeader}>
+              <Typography className={styles.blockTitle}>
+                Loading Block Data...
+              </Typography>
+            </div>
+            <CircularProgress />
+          </CardContent>
+        </Card>
+      </Box>
+    );
   }
-
-  const handleRowClick = async () => {
-    // Fetch the parent block data using the parentHash
-    const parentBlockData = await alchemy.core.getBlock(blockData.parentHash);
-    
-    // Set the block number to the parent block’s number
-    if (parentBlockData) {
-      setBlockNumber(parentBlockData.number);
-    }
-  };
-
-
-  const handleShowTransactions = () => {
-    history.push('/transactions', { blockNumber });
-  };
 
   const formattedTimestamp = new Date(blockData.timestamp * 1000).toLocaleString();
 
-  return (
-    <Box display="flex" justifyContent="center" mt={4}>
-      <Card sx={{ maxWidth: 1300, width: '100%', boxShadow: 3 }}>
-        <CardContent>
 
-      <Typography variant="subtitle1" color="textSecondary">
-          Block #{blockNumber}
+  return (
+    <Box className={styles.explorerPage}>
+      <Card className={styles.blockCard}>
+        <CardContent>
+        <div className={styles.blockHeader}>
+          <div className = {styles.titleSection}>
+          <Typography className={styles.blockLabel}>
+              Ethereum Block
+            </Typography>
+        <Typography className={styles.blockTitle}>
+        #{blockNumber.toLocaleString()}
         </Typography>
+        </div>
+
+        <div className={styles.timestampSection}>
+            <Typography className={styles.timestampLabel}>
+              Block Time (UTC)
+            </Typography>
+            <Typography className={styles.timestamp}>
+              <span>🕒</span>
+              {new Date(blockData.timestamp * 1000).toLocaleString('en-US', {
+                hour12: false,
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'UTC'
+              })}
+            </Typography>
+          </div>
+        </div>
       
       <TableContainer>
-      <Table sx={{ minWidth: 900}} aria-labelledby="tableTitle">
+      <Table className={styles.table} aria-labelledby="tableTitle">
         <TableBody>
-
-            <TableRow>
-              <TableCell>Timestamp:</TableCell>
-              <TableCell>🕓 {formattedTimestamp}</TableCell>
-            </TableRow> 
 
             <TableRow
              onClick={handleShowTransactions} 
-             style={{ cursor: 'pointer' }}
+             className={styles.clickableRow}
              >
               <TableCell>Transactions:</TableCell>
-              <TableCell style={{ color: '#33c9ff' }}>{blockData.transactions.length} transactions</TableCell>
+              <TableCell className={styles.clickableCell}>{blockData.transactions.length} transactions</TableCell>
             </TableRow>
 
             <TableRow>
@@ -81,9 +115,9 @@ export default function BlockExplorer() {
             <TableRow
               key={blockData.id} 
               onClick={handleRowClick} 
-              style={{ cursor: 'pointer' }}>
+              className={styles.clickableRow}>
               <TableCell>Parent Hash:</TableCell>
-              <TableCell style={{ color: '#33c9ff' }}>{blockData.parentHash}</TableCell>
+              <TableCell className={styles.clickableCell}>{blockData.parentHash}</TableCell>
             </TableRow>
 
             <TableRow>

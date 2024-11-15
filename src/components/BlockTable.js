@@ -1,41 +1,58 @@
 // src/components/BlockTable.js
 import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination } from '@mui/material';
+import { Table, TableBody, TableCell, TableHead, TableRow, Tooltip } from '@mui/material';
 import { Utils } from 'alchemy-sdk';
+import { useHistory } from 'react-router-dom';
+import styles from './BlockTable.module.css';
+import { BigNumber } from 'ethers';
 
-export default function BlockTable({ transactions, page, rowsPerPage, onPageChange, onRowsPerPageChange }) {
-  const visibleRows = transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+export default function BlockTable({ transactions }) {
+  const history = useHistory();
+
+  const handleAddressClick = (address) => {
+    history.push(`/address`, { address});
+  };
 
   return (
-    <TableContainer>
-      <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
-        <TableHead>
-          <TableRow>
-            <TableCell>#</TableCell>
-            <TableCell align="right">From</TableCell>
-            <TableCell align="right">To</TableCell>
-            <TableCell align="right">Value (ETH)</TableCell>
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableCell>Hash</TableCell>
+          <TableCell>From</TableCell>
+          <TableCell>To</TableCell>
+          <TableCell>Value (ETH)</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {transactions.map((tx) => (
+          <TableRow key={tx.hash}>
+           <TableCell>
+            <Tooltip title={tx.hash} placement='top' classes = {{tooltip: styles.customTooltip}}>
+              <span className={styles.hashCell}>{tx.hash.substring(0,10)}...</span>
+            </Tooltip>
+            </TableCell>
+            <TableCell  className={styles.clickableCell}
+              onClick={() => tx.to && handleAddressClick(tx.to)}
+              >
+                {tx.from}</TableCell>
+            <TableCell className={styles.clickableCell}
+              onClick={() => handleAddressClick(tx.to)}>
+                {tx.to ? tx.to : 'Contract Creation'}</TableCell>
+            <TableCell>{ tx.value ? 
+            (() => { try {
+              const valueInWei = BigNumber.from(tx.value);
+              return Number(Utils.formatEther(tx.value)).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 6
+              });
+            } catch (error) {
+              console.warn('Error formatting value:', error);
+              return '0.00';
+              }})() : '0.00'}
+              </TableCell>
           </TableRow>
-        </TableHead>
-        <TableBody>
-          {visibleRows.map((row, index) => (
-            <TableRow key={index}>
-              <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
-              <TableCell align="right">{row.from}</TableCell>
-              <TableCell align="right">{row.to}</TableCell>
-              <TableCell align="right">{Math.round((Utils.formatEther(row.value)) * 10000) / 10000} ETH</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <TablePagination
-        component="div"
-        count={transactions.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={onPageChange}
-        onRowsPerPageChange={onRowsPerPageChange}
-      />
-    </TableContainer>
+        ))}
+      </TableBody>
+    </Table>
   );
 }

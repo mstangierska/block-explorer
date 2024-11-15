@@ -1,0 +1,24 @@
+.appBar {
+  background-color: white !important; 
+  color: rgba(0, 0, 0, 0.87) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+  } 
+
+.navLink {
+  text-decoration: none;
+  color: hsl(210, 100%, 13%);
+}
+
+.activeLink {
+  color: #1976d2; /* MUI's default primary color */
+  font-weight: bold;
+}
+
+.navLink :global(.MuiTab-root) {
+    color: inherit;
+  }

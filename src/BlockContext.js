@@ -15,19 +15,25 @@ export function BlockNumberProvider({ children }) {
   const [blockNumber, setBlockNumber] = useState(null);
   const [minedAt, setMinedAt] = useState(null); // State for the block mining timestamp
   const [timeAgo, setTimeAgo] = useState('');
-
+  const [transactions, setTransactions] = useState([]);
+  const [defaultAddress, setDefaultAddress] = useState(null);
   // Fetch the latest block number when the provider is mounted
   useEffect(() => {
-    async function fetchBlockNumber() {
+    async function fetchBlockData() {
       try {
         const number = await alchemy.core.getBlockNumber();
         setBlockNumber(number);
 
-        const blockData = await alchemy.core.getBlock(blockNumber);
-        setMinedAt(blockData.timestamp);
+        const blockWithTxs = await alchemy.core.getBlockWithTransactions(number);
+        
+        setMinedAt(blockWithTxs.timestamp);
+
+        if (blockWithTxs.transactions && blockWithTxs.transactions.length > 0) {
+          setDefaultAddress(blockWithTxs.transactions[0].from);
+        }
 
         const currentTime = Date.now(); // Current time in milliseconds
-        const blockTime = blockData.timestamp * 1000; // Convert block timestamp to milliseconds
+        const blockTime = blockWithTxs.timestamp * 1000; // Convert block timestamp to milliseconds
         const differenceInSeconds = Math.floor((currentTime - blockTime) / 1000); // Difference in seconds
 
         let timeAgoString = `${differenceInSeconds} seconds ago`; // Default to seconds
@@ -43,11 +49,19 @@ export function BlockNumberProvider({ children }) {
       }
     }
 
-    fetchBlockNumber();
+    fetchBlockData();
+    const interval = setInterval(fetchBlockData, 15000); // every 15 seconds
+    return () => clearInterval(interval);
+
   }, []);
 
   return (
-    <BlockNumberContext.Provider value={{ blockNumber, setBlockNumber, minedAt, timeAgo }}>
+    <BlockNumberContext.Provider value=
+    {{ blockNumber, 
+    setBlockNumber, 
+    minedAt, 
+    timeAgo, 
+    defaultAddress }}>
       {children}
     </BlockNumberContext.Provider>
   );
